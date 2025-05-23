@@ -1,0 +1,40 @@
+this.dominioForm = this.fb.group({
+  idCliente: ['', Validators.required],
+  dominio: ['', Validators.required],
+  orgaoRegistro: ['', Validators.required],
+  situacaoProcesso: ['', Validators.required],
+  dataRegistro: ['', Validators.required],
+  dataVigenciaRegistro: ['', Validators.required],
+  fatorGerador: ['', Validators.required],
+  tipoPrazo: ['', Validators.required],
+  descricaoPrazo: [''],
+
+  // replicados automaticamente
+  titular: [{ value: '', disabled: true }],
+  interessado: [{ value: '', disabled: true }],
+  correspondente: [{ value: '', disabled: true }]
+});
+
+Exemplo:
+
+this.dominioForm.patchValue({
+  titular: 'Belarmino PI',
+  interessado: 'Belarmino PI',
+  correspondente: 'Belarmino PI'
+
+Estrutura Mongo:
+
+{
+  "IdCliente": 67,
+  "Dominio": "CACAU DIAS",
+  "OrgaoRegistro": "CACAU DIAS",
+  "SituacaoProcesso": "Registro de marca em vigor",
+  "DataRegistro": "2018-05-12T00:00:00Z",
+  "DataVigenciaRegistro": "2028-05-12T00:00:00Z",
+  "FatorGerador": 1,
+  "TipoPrazo": 2,
+  "DescricaoPrazo": "Manifestação",
+  "Titular": "Belarmino PI",
+  "Interessado": "Belarmino PI",
+  "Correspondente": "Belarmino PI"
+}
