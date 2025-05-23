@@ -1,0 +1,94 @@
+// dominio.component.ts
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+@Component({
+  selector: 'app-dominio',
+  templateUrl: './dominio.component.html'
+})
+export class DominioComponent implements OnInit {
+  dominioForm: FormGroup;
+
+  constructor(private fb: FormBuilder) {
+    this.dominioForm = this.fb.group({
+      idCliente: ['', Validators.required],
+      dominio: ['', Validators.required],
+      orgaoRegistro: ['', Validators.required],
+      situacaoProcesso: ['', Validators.required],
+      dataRegistro: ['', Validators.required],
+      dataVigenciaRegistro: ['', Validators.required],
+      fatorGerador: ['', Validators.required],
+      tipoPrazo: ['', Validators.required],
+      descricaoPrazo: [''],
+      titular: [{ value: '', disabled: true }],
+      interessado: [{ value: '', disabled: true }],
+      correspondente: [{ value: '', disabled: true }]
+    });
+  }
+
+  ngOnInit(): void {
+    // Simula a replicação dos dados do cadastro de empresa
+    const dadosEmpresa = {
+      titular: 'Belarmino PI',
+      interessado: 'Belarmino PI',
+      correspondente: 'Belarmino PI'
+    };
+
+    this.dominioForm.patchValue({
+      titular: dadosEmpresa.titular,
+      interessado: dadosEmpresa.interessado,
+      correspondente: dadosEmpresa.correspondente
+    });
+  }
+
+  onSubmit(): void {
+    if (this.dominioForm.valid) {
+      const dadosDominio = this.dominioForm.getRawValue();
+      console.log('Dados a salvar no MongoDB:', dadosDominio);
+      // Chamada ao serviço para salvar no MongoDB com referência ao IdCliente
+    }
+  }
+}
+
+// dominio.component.html
+<div class="p-4">
+  <form [formGroup]="dominioForm" (ngSubmit)="onSubmit()">
+    <label>ID Cliente:</label>
+    <input formControlName="idCliente" class="input" />
+
+    <label>Domínio:</label>
+    <input formControlName="dominio" class="input" />
+
+    <label>Órgão de Registro:</label>
+    <input formControlName="orgaoRegistro" class="input" />
+
+    <label>Situação do Processo:</label>
+    <input formControlName="situacaoProcesso" class="input" />
+
+    <label>Data de Registro:</label>
+    <input formControlName="dataRegistro" type="date" class="input" />
+
+    <label>Data de Vigência do Registro:</label>
+    <input formControlName="dataVigenciaRegistro" type="date" class="input" />
+
+    <label>Fator Gerador:</label>
+    <input formControlName="fatorGerador" class="input" />
+
+    <label>Tipo de Prazo:</label>
+    <input formControlName="tipoPrazo" class="input" />
+
+    <label>Descrição do Prazo:</label>
+    <input formControlName="descricaoPrazo" class="input" />
+
+    <label>Titular:</label>
+    <input formControlName="titular" class="input" disabled />
+
+    <label>Interessado:</label>
+    <input formControlName="interessado" class="input" disabled />
+
+    <label>Correspondente:</label>
+    <input formControlName="correspondente" class="input" disabled />
+
+    <button type="submit" class="btn btn-primary">Salvar</button>
+  </form>
+</div>
