@@ -1,13 +1,20 @@
-this.dominioForm = this.fb.group({
-  idCliente: ['', Validators.required],
-  dominio: ['', Validators.required],
-  orgaoRegistro: ['', Validators.required],
-  situacaoProcesso: ['', Validators.required],
-  dataRegistro: ['', Validators.required],
-  dataVigenciaRegistro: ['', Validators.required],
-  fatorGerador: ['', Validators.required],
-  tipoPrazo: ['', Validators.required],
-  descricaoPrazo: [''],
+      this.dominioForm = this.fb.group({
+      idCliente: ['', Validators.required],                   // 1
+      dominio: ['', Validators.required],                     // 2
+      ticket: ['', Validators.required],                      // 3
+      orgaoRegistro: ['', Validators.required],
+      situacaoProcesso: ['', Validators.required],            // 4
+      dataRegistro: ['', Validators.required],                // 5
+      paisRegistro: ['', Validators.required],                // 6
+      SACI: ['', Validators.required],                        // 7
+      dataVigenciaRegistro: ['', Validators.required],        // 8
+      emailContato: ['', [Validators.required, Validators.email]],
+      fatorGerador: ['', Validators.required],
+      tipoPrazo: ['', Validators.required],
+      descricaoPrazo: [''],
+      titular: [{ value: '', disabled: true }],
+      interessado: [{ value: '', disabled: true }],
+      correspondente: [{ value: '', disabled: tru
 
   // replicados automaticamente
   titular: [{ value: '', disabled: true }],
