@@ -11,21 +11,23 @@ export class DominioComponent implements OnInit {
 
   constructor(private fb: FormBuilder) {
     this.dominioForm = this.fb.group({
+      dominio: ['', Validators.required],                // 1
+      ticket: ['', Validators.required],                 // 2
+      orgaoRegistro: ['', Validators.required],          // 3
+      paisRegistro: ['', Validators.required],           // 4 (novo campo)
+      saci: ['', Validators.required],                   // 5
+      dataRegistro: ['', Validators.required],           // 6
+      dataVigenciaRegistro: ['', Validators.required],   // 7
+      emailContato: ['', [Validators.required, Validators.email]], // 8
+      situacaoProcesso: ['', Validators.required],       // 9
       idCliente: ['', Validators.required],
-      dominio: ['', Validators.required],
-      orgaoRegistro: ['', Validators.required],
-      situacaoProcesso: ['', Validators.required],
-      dataRegistro: ['', Validators.required],
-      dataVigenciaRegistro: ['', Validators.required],
       fatorGerador: ['', Validators.required],
       tipoPrazo: ['', Validators.required],
       descricaoPrazo: [''],
       titular: [{ value: '', disabled: true }],
-      interessado: [{ value: '', disabled: true }],
-      correspondente: [{ value: '', disabled: true }]
+      interessado: [{ value: '', disabled: true }]
     });
   }
-
   ngOnInit(): void {
     // Simula a replicação dos dados do cadastro de empresa
     const dadosEmpresa = {
