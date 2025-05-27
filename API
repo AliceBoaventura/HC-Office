@@ -1,0 +1,103 @@
+import express, { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
+const app = express();
+app.use(express.json());
+
+// --- UTIL: Normalizador de texto ortografado ---
+function normalizarTexto(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9 ]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+// --- MONGOOSE: Schema ---
+const dominioSchema = new mongoose.Schema({
+  idCliente: { type: String, required: true },
+  titular: String,
+  titularOrtografado: { type: String, index: true },
+  interessado: String,
+  interessadoOrtografado: { type: String, index: true },
+  correspondente: String,
+  correspondenteOrtografado: { type: String, index: true }
+});
+const Dominio = mongoose.model('Dominio', dominioSchema);
+
+// --- MIDDLEWARE: Verificar JWT ---
+function autenticarToken(req: Request, res: Response, next: NextFunction) {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Token não fornecido' });
+
+  try {
+    const chave = process.env.JWT_SECRET || 'segredo-padrao';
+    const decoded = jwt.verify(token, chave);
+    (req as any).usuario = decoded;
+    next();
+  } catch (err) {
+    return res.status(403).json({ error: 'Token inválido ou expirado' });
+  }
+}
+
+// --- ROTA: Autenticação Fake ---
+app.post('/login', (req: Request, res: Response) => {
+  const usuario = req.body.usuario;
+  if (usuario === 'admin') {
+    const chave = process.env.JWT_SECRET || 'segredo-padrao';
+    const token = jwt.sign({ usuario }, chave, { expiresIn: '1h' });
+    return res.json({ token });
+  }
+  return res.status(401).json({ error: 'Credenciais inválidas' });
+});
+
+// --- ROTA: Cadastro de domínio ---
+app.post('/dominio', autenticarToken, async (req: Request, res: Response) => {
+  try {
+    const dados = req.body;
+
+    const dominio = new Dominio({
+      ...dados,
+      titularOrtografado: normalizarTexto(dados.titular),
+      interessadoOrtografado: normalizarTexto(dados.interessado),
+      correspondenteOrtografado: normalizarTexto(dados.correspondente)
+    });
+
+    await dominio.save();
+    res.status(201).json(dominio);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao salvar domínio' });
+  }
+});
+
+// --- ROTA: Pesquisa com segurança ---
+app.get('/dominio/buscar', autenticarToken, async (req: Request, res: Response) => {
+  try {
+    const termo = req.query.termo?.toString() || '';
+    const termoOrtografado = normalizarTexto(termo);
+
+    const resultados = await Dominio.find({
+      $or: [
+        { titularOrtografado: { $regex: termoOrtografado, $options: 'i' } },
+        { interessadoOrtografado: { $regex: termoOrtografado, $options: 'i' } },
+        { correspondenteOrtografado: { $regex: termoOrtografado, $options: 'i' } }
+      ]
+    });
+
+    res.json(resultados);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro na busca' });
+  }
+});
+
+// --- CONEXÃO MongoDB + Start Server ---
+const PORT = process.env.PORT || 3000;
+mongoose.connect('mongodb://localhost:27017/sua-base')
+  .then(() => {
+    app.listen(PORT, () => console.log(`Servidor rodando em http://localhost:${PORT}`));
+  })
+  .catch(err => console.error('Erro ao conectar no MongoDB', err));
