@@ -14,7 +14,8 @@ export class DominioComponent implements OnInit {
       idCliente: ['', Validators.required],
       dominio: ['', Validators.required],                // 1
       ticket: ['', Validators.required],                 // 2
-      orgaoRegistro: ['', Validators.required],          // 3
+      orgaoRegistro: ['', Validators.required],
+      situacaoProcesso: ['', Validators.required],// 3
       dataRegistro: ['', Validators.required],       // 
       paisRegistro: ['', Validators.required],           // 4 (novo campo)
       saci: ['', Validators.required],                   // 5
