@@ -1,0 +1,60 @@
+import { Component, OnInit } from '@angular/core';
+import { IProcessoVinculado, IHistoricoProcesso, IDadosProcesso } from './processo.model';
+import { ProcessoService } from './processo.service';
+
+@Component({
+  selector: 'app-sua-tela',
+  templateUrl: './sua-tela.component.html'
+})
+export class SuaTelaComponent implements OnInit {
+  idCliente = 'cliente123'; // exemplo, pode vir de rota
+
+  dados: IDadosProcesso = {
+    idCliente: this.idCliente,
+    processosVinculados: [],
+    historico: []
+  };
+
+  novoProcesso: IProcessoVinculado = {
+    processo: '',
+    tipo: '',
+    assunto: '',
+    situacao: ''
+  };
+
+  novoHistorico: IHistoricoProcesso = {
+    data: '',
+    tipo: '',
+    assunto: ''
+  };
+
+  constructor(private processoService: ProcessoService) {}
+
+  ngOnInit() {
+    this.processoService.getPorCliente(this.idCliente).subscribe(data => {
+      if (data) {
+        this.dados = data;
+      }
+    });
+  }
+
+  adicionarProcesso() {
+    if (this.novoProcesso.processo) {
+      this.dados.processosVinculados.push({ ...this.novoProcesso });
+      this.novoProcesso = { processo: '', tipo: '', assunto: '', situacao: '' };
+      this.salvar();
+    }
+  }
+
+  adicionarHistorico() {
+    if (this.novoHistorico.data) {
+      this.dados.historico.push({ ...this.novoHistorico });
+      this.novoHistorico = { data: '', tipo: '', assunto: '' };
+      this.salvar();
+    }
+  }
+
+  salvar() {
+    this.processoService.salvar(this.idCliente, this.dados).subscribe();
+  }
+}
