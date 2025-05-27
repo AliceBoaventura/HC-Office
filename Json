@@ -32,9 +32,9 @@ export class DominioComponent implements OnInit {
   ngOnInit(): void {
     // Simula a replicação dos dados do cadastro de empresa
     const dadosEmpresa = {
-      titular: 'Belarmino PI',
-      interessado: 'Belarmino PI',
-      correspondente: 'Belarmino PI'
+      db.nomeDaColecao.createIndex({ titularOrtografado: 1 });
+      db.nomeDaColecao.createIndex({ interessadoOrtografado: 1 });
+      db.nomeDaColecao.createIndex({ correspondenteOrtografado: 1 });
     };
 
     this.dominioForm.patchValue({
