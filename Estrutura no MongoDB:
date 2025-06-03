@@ -1,0 +1,22 @@
+
+{
+  "_id": "ObjectId",
+  "idCliente": "123456789",
+  "nomeDominio": "example.com",
+  "prazo": 5,
+  "fatorGerador": "Medio Prazo",
+  "titular": {
+    "nome": "Empresa X",
+    "cnpj": "00.000.000/0001-00"
+  },
+  "interessado": {
+    "nome": "Fulano"
+  },
+  "correspondentes": [
+    {
+      "nome": "Advogado A",
+      "email": "a@exemplo.com"
+    }
+  ],
+  "dataCadastro": "2025-05-23T10:00:00Z"
+}
