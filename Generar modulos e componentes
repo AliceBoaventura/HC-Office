@@ -1,0 +1,4 @@
+ng generate module direito-autoral --routing
+ng generate component direito-autoral/cadastro-direito-autoral
+ng generate component direito-autoral/lista
+ng generate service direito-autoral/services/direito-autoral
