@@ -1,1 +1,168 @@
+export interface Parte {
+  _id: number;
+  Nome: string;
+  NomeOrtografado: string;
+}
 
+export interface AgendaPrazo {
+  _id: string;
+  DtPrazo: Date;
+  Assunto: string;
+  Descricao: string;
+  Despacho: string;
+  Rpi: number;
+  DtPublicacao: Date;
+  TipoPrazo: number;
+  FatoGerador: number;
+  Responsavel: string;
+  DtBaixa: Date;
+  Baixado: boolean;
+}
+
+export interface DadosGerais {
+  PastaReferencia?: string;
+  ReferenciaCliente?: string;
+  ReferenciaFinanceira?: string;
+  Patrono?: string;
+  Responsavel?: string;
+  Terceiros?: boolean;
+  Colidencia?: boolean;
+  Abandonado?: boolean;
+  ArquivoMorto?: boolean;
+}
+
+export interface DireitoAutoral {
+  IdProcessoDireitoAutoral?: string;
+  IdCliente: number;
+  PaisRegistro: string;
+  Detalhes: {
+    Processo: string;
+    DireitoAutoral: string;
+    OrgaoRegistro: string;
+    SituacaoProcesso: string;
+  };
+  DatasProcesso: {
+    DataDeposito: Date;
+    DataRegistro: Date;
+  };
+  PartesProcesso: {
+    TitularesCadastrados: Parte[];
+    InteressadosCadastrados: Parte[];
+    CorrespondentesCadastrados: Parte[];
+  };
+  AgendaPrazos: AgendaPrazo[];
+  ProcessosVinculados: any[];
+  HistoricoProcessos: any[];
+  DadosGerais: DadosGerais;
+}
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import { DireitoAutoral } from '../models/direito-autoral.model';
+
+@Injectable({ providedIn: 'root' })
+export class DireitoAutoralService {
+  private readonly apiUrl = `${environment.apiUrl}/direito-autoral`;
+
+  constructor(private http: HttpClient) {}
+
+  getAllByCliente(idCliente: number): Observable<DireitoAutoral[]> {
+    return this.http.get<DireitoAutoral[]>(`${this.apiUrl}/cliente/${idCliente}`);
+  }
+
+  getById(id: string): Observable<DireitoAutoral> {
+    return this.http.get<DireitoAutoral>(`${this.apiUrl}/${id}`);
+  }
+
+  create(direito: DireitoAutoral): Observable<DireitoAutoral> {
+    return this.http.post<DireitoAutoral>(`${this.apiUrl}`, direito);
+  }
+
+  update(id: string, direito: DireitoAutoral): Observable<DireitoAutoral> {
+    return this.http.put<DireitoAutoral>(`${this.apiUrl}/${id}`, direito);
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+}
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { DireitoAutoralService } from '../../services/direito-autoral.service';
+import { DireitoAutoral } from '../../models/direito-autoral.model';
+
+@Component({
+  selector: 'app-direito-autoral-form',
+  templateUrl: './direito-autoral-form.component.html'
+})
+export class DireitoAutoralFormComponent implements OnInit {
+  form!: FormGroup;
+
+  constructor(
+    private fb: FormBuilder,
+    private direitoService: DireitoAutoralService
+  ) {}
+
+  ngOnInit(): void {
+    this.form = this.fb.group({
+      IdCliente: [67],
+      PaisRegistro: ['Brasil'],
+      Detalhes: this.fb.group({
+        Processo: [''],
+        DireitoAutoral: [''],
+        OrgaoRegistro: [''],
+        SituacaoProcesso: ['']
+      }),
+      DatasProcesso: this.fb.group({
+        DataDeposito: [''],
+        DataRegistro: ['']
+      }),
+      PartesProcesso: this.fb.group({
+        TitularesCadastrados: [[]],
+        InteressadosCadastrados: [[]],
+        CorrespondentesCadastrados: [[]]
+      }),
+      AgendaPrazos: [[]],
+      ProcessosVinculados: [[]],
+      HistoricoProcessos: [[]],
+      DadosGerais: this.fb.group({
+        PastaReferencia: [''],
+        ReferenciaCliente: [''],
+        Patrono: [''],
+        Responsavel: [''],
+        Colidencia: [false],
+        Terceiros: [false]
+      })
+    });
+  }
+
+  salvar() {
+    const data: DireitoAutoral = this.form.value;
+    this.direitoService.create(data).subscribe(() => {
+      alert('Registro salvo com sucesso!');
+    });
+  }
+<form [formGroup]="form" (ngSubmit)="salvar()">
+  <h2>Cadastro de Direito Autoral</h2>
+
+  <div formGroupName="Detalhes">
+    <label>Processo: <input formControlName="Processo" /></label><br>
+    <label>Título: <input formControlName="DireitoAutoral" /></label><br>
+    <label>Órgão: <input formControlName="OrgaoRegistro" /></label><br>
+    <label>Situação: <input formControlName="SituacaoProcesso" /></label>
+  </div>
+
+  <div formGroupName="DatasProcesso">
+    <label>Data Depósito: <input type="date" formControlName="DataDeposito" /></label><br>
+    <label>Data Registro: <input type="date" formControlName="DataRegistro" /></label>
+  </div>
+
+  <div formGroupName="DadosGerais">
+    <label>Pasta Referência: <input formControlName="PastaReferencia" /></label><br>
+    <label>Responsável: <input formControlName="Responsavel" /></label>
+  </div>
+
+  <button type="submit">Salvar</button>
+</form>
+}
