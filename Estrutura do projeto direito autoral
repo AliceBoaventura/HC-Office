@@ -1,0 +1,11 @@
+src/
+└── app/
+    └── direito-autoral/
+        ├── models/
+        │   └── direito-autoral.model.ts
+        ├── services/
+        │   └── direito-autoral.service.ts
+        └── components/
+            └── direito-autoral-form/
+                ├── direito-autoral-form.component.ts
+                ├── direito-autoral-form.component.html
