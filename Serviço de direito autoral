@@ -1,0 +1,47 @@
+import { Component, OnInit } from '@angular/core';
+import { DireitoAutoralService } from '../../services/direito-autoral.service';
+
+@Component({
+  selector: 'app-lista-direitos-autoral',
+  templateUrl: './lista.component.html',
+  styleUrls: ['./lista.component.css']
+})
+export class ListaDireitosAutoralComponent implements OnInit {
+  registros: any[] = [];
+  carregando = false;
+  mensagem = '';
+
+  constructor(private direitoService: DireitoAutoralService) {}
+
+  ngOnInit(): void {
+    this.buscarRegistros();
+  }
+
+  buscarRegistros(): void {
+    this.carregando = true;
+    this.direitoService.listarPorCliente('123456789').subscribe({
+      next: (dados) => {
+        this.registros = dados;
+        this.carregando = false;
+      },
+      error: () => {
+        this.mensagem = 'Erro ao carregar registros.';
+        this.carregando = false;
+      }
+    });
+  }
+
+  excluir(id: string): void {
+    if (!confirm('Tem certeza que deseja excluir este registro?')) return;
+
+    this.direitoService.excluir(id).subscribe({
+      next: () => {
+        this.mensagem = 'Registro excluído com sucesso.';
+        this.buscarRegistros();
+      },
+      error: () => {
+        this.mensagem = 'Erro ao excluir.';
+      }
+    });
+  }
+}
