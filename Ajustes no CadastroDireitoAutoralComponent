@@ -1,0 +1,70 @@
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+
+@Component({
+  selector: 'app-cadastro-direito-autoral',
+  ...
+})
+export class CadastroDireitoAutoralComponent implements OnChanges {
+  @Input() registroParaEditar: any = null;
+
+  form: FormGroup;
+  carregando = false;
+  mensagem = '';
+  _id: string | null = null;
+
+  constructor(private fb: FormBuilder, private direitoAutoralService: DireitoAutoralService) {
+    this.form = this.fb.group({
+      Detalhes: this.fb.group({
+        Processo: ['', Validators.required],
+        DireitoAutoral: ['', Validators.required],
+        OrgaoRegistro: [''],
+        SituacaoProcesso: ['']
+      }),
+      DatasProcesso: this.fb.group({
+        DataDeposito: [''],
+        DataRegistro: ['']
+      }),
+      DadosGerais: this.fb.group({
+        PastaReferencia: [''],
+        Responsavel: ['']
+      })
+    });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['registroParaEditar'] && this.registroParaEditar) {
+      this._id = this.registroParaEditar._id || null;
+      this.form.patchValue(this.registroParaEditar);
+    }
+  }
+
+  salvar(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.carregando = true;
+    const dados = {
+      ...this.form.value,
+      IdCliente: '123456789' // ajustar conforme o contexto real
+    };
+
+    const acao = this._id
+      ? this.direitoAutoralService.editar(this._id, dados)
+      : this.direitoAutoralService.salvar(dados);
+
+    acao.subscribe({
+      next: () => {
+        this.mensagem = this._id ? 'Cadastro atualizado com sucesso!' : 'Cadastro salvo com sucesso!';
+        this.form.reset();
+        this._id = null;
+        this.carregando = false;
+      },
+      error: () => {
+        this.mensagem = 'Erro ao salvar/atualizar.';
+        this.carregando = false;
+      }
+    });
+  }
+}
