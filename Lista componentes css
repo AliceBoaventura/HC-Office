@@ -1,0 +1,26 @@
+<h2>Registros de Direitos Autorais</h2>
+
+<table *ngIf="registros.length" class="tabela">
+  <thead>
+    <tr>
+      <th>Processo</th>
+      <th>Título</th>
+      <th>Responsável</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of registros">
+      <td>{{ item.Detalhes.Processo }}</td>
+      <td>{{ item.Detalhes.DireitoAutoral }}</td>
+      <td>{{ item.DadosGerais.Responsavel }}</td>
+      <td>
+        <button (click)="editar(item)">Editar</button>
+        <button (click)="excluir(item._id)">Excluir</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<p *ngIf="!registros.length && !carregando">Nenhum registro encontrado.</p>
+<p *ngIf="mensagem">{{ mensagem }}</p>
