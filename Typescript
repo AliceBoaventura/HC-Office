@@ -1,0 +1,40 @@
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+
+@Component({
+  selector: 'app-dominio',
+  templateUrl: './dominio.component.html',
+})
+export class DominioComponent implements OnInit {
+  dominioForm: FormGroup;
+  anos = Array.from({ length: 10 }, (_, i) => i + 1);
+  fatorGerador: string = '';
+
+  constructor(private fb: FormBuilder) {}
+
+  ngOnInit() {
+    this.dominioForm = this.fb.group({
+      nomeDominio: [''],
+      prazo: [1],
+    });
+
+    this.dominioForm.get('prazo')?.valueChanges.subscribe(value => {
+      this.fatorGerador = this.definirFator(value);
+    });
+  }
+
+  definirFator(prazo: number): string {
+    if (prazo <= 2) return 'Curto Prazo';
+    if (prazo <= 5) return 'Medio Prazo';
+    return 'Longo Prazo';
+  }
+
+  onSubmit() {
+    const dados = {
+      ...this.dominioForm.value,
+      fatorGerador: this.fatorGerador,
+    };
+    console.log('Dados do Dominio:', dados);
+    // Aqui pode chamar um serviço para salvar no backend
+  }
+}
