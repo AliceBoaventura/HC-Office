@@ -1,116 +1,141 @@
-export interface Parte {
-  _id: number;
-  Nome: string;
-  NomeOrtografado: string;
-}
-
-export interface AgendaPrazo {
-  _id: string;
-  DtPrazo: Date;
-  Assunto: string;
-  Descricao: string;
-  Despacho: string;
-  Rpi: number;
-  DtPublicacao: Date;
-  TipoPrazo: number;
-  FatoGerador: number;
-  Responsavel: string;
-  DtBaixa: Date;
-  Baixado: boolean;
-}
-
-export interface DadosGerais {
-  PastaReferencia?: string;
-  ReferenciaCliente?: string;
-  ReferenciaFinanceira?: string;
-  Patrono?: string;
-  Responsavel?: string;
-  Terceiros?: boolean;
-  Colidencia?: boolean;
-  Abandonado?: boolean;
-  ArquivoMorto?: boolean;
-}
-
-export interface DireitoAutoral {
-  IdProcessoDireitoAutoral?: string;
-  IdCliente: number;
-  PaisRegistro: string;
-  Detalhes: {
-    Processo: string;
-    DireitoAutoral: string;
-    OrgaoRegistro: string;
-    SituacaoProcesso: string;
-  };
-  DatasProcesso: {
-    DataDeposito: Date;
-    DataRegistro: Date;
-  };
-  PartesProcesso: {
-    TitularesCadastrados: Parte[];
-    InteressadosCadastrados: Parte[];
-    CorrespondentesCadastrados: Parte[];
-  };
-  AgendaPrazos: AgendaPrazo[];
-  ProcessosVinculados: any[];
-  HistoricoProcessos: any[];
-  DadosGerais: DadosGerais;
-}
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
-import { DireitoAutoral } from '../models/direito-autoral.model';
-
-@Injectable({ providedIn: 'root' })
-export class DireitoAutoralService {
-  private readonly apiUrl = `${environment.apiUrl}/direito-autoral`;
-
-  constructor(private http: HttpClient) {}
-
-  getAllByCliente(idCliente: number): Observable<DireitoAutoral[]> {
-    return this.http.get<DireitoAutoral[]>(`${this.apiUrl}/cliente/${idCliente}`);
-  }
-
-  getById(id: string): Observable<DireitoAutoral> {
-    return this.http.get<DireitoAutoral>(`${this.apiUrl}/${id}`);
-  }
-
-  create(direito: DireitoAutoral): Observable<DireitoAutoral> {
-    return this.http.post<DireitoAutoral>(`${this.apiUrl}`, direito);
-  }
-
-  update(id: string, direito: DireitoAutoral): Observable<DireitoAutoral> {
-    return this.http.put<DireitoAutoral>(`${this.apiUrl}/${id}`, direito);
-  }
-
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-}
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { DireitoAutoralService } from '../../services/direito-autoral.service';
-import { DireitoAutoral } from '../../models/direito-autoral.model';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 
 @Component({
-  selector: 'app-direito-autoral-form',
-  templateUrl: './direito-autoral-form.component.html'
+  selector: 'app-cadastro-direito-autoral',
+  template: `
+    <form [formGroup]="form" (ngSubmit)="salvar()" class="formulario">
+      <h2>Cadastro de Direito Autoral</h2>
+
+      <fieldset formGroupName="Detalhes">
+        <legend>Detalhes</legend>
+
+        <label>
+          Processo:
+          <input formControlName="Processo" />
+          <span class="erro" *ngIf="campoInvalido(detalhes.Processo)">Obrigatório</span>
+        </label>
+
+        <label>
+          Título:
+          <input formControlName="DireitoAutoral" />
+          <span class="erro" *ngIf="campoInvalido(detalhes.DireitoAutoral)">Obrigatório</span>
+        </label>
+
+        <label>
+          Órgão:
+          <input formControlName="OrgaoRegistro" />
+        </label>
+
+        <label>
+          Situação:
+          <input formControlName="SituacaoProcesso" />
+        </label>
+      </fieldset>
+
+      <fieldset formGroupName="DatasProcesso">
+        <legend>Datas</legend>
+
+        <label>
+          Data Depósito:
+          <input type="date" formControlName="DataDeposito" />
+        </label>
+
+        <label>
+          Data Registro:
+          <input type="date" formControlName="DataRegistro" />
+        </label>
+      </fieldset>
+
+      <fieldset formGroupName="DadosGerais">
+        <legend>Dados Gerais</legend>
+
+        <label>
+          Pasta Referência:
+          <input formControlName="PastaReferencia" />
+        </label>
+
+        <label>
+          Responsável:
+          <input formControlName="Responsavel" />
+        </label>
+      </fieldset>
+
+      <button type="submit" [disabled]="form.invalid || carregando">Salvar</button>
+
+      <div *ngIf="mensagem" class="mensagem">{{ mensagem }}</div>
+    </form>
+  `,
+  styles: [`
+    .formulario {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+    }
+
+    fieldset {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+
+    legend {
+      font-weight: bold;
+      padding: 0 10px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 6px;
+      box-sizing: border-box;
+    }
+
+    .erro {
+      color: red;
+      font-size: 0.8em;
+      display: block;
+    }
+
+    .mensagem {
+      margin-top: 15px;
+      color: green;
+      font-weight: bold;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 16px;
+      font-size: 1em;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+
+    button:disabled {
+      background-color: #999;
+    }
+  `]
 })
-export class DireitoAutoralFormComponent implements OnInit {
-  form!: FormGroup;
+export class CadastroDireitoAutoralComponent {
+  form: FormGroup;
+  carregando = false;
+  mensagem = '';
 
-  constructor(
-    private fb: FormBuilder,
-    private direitoService: DireitoAutoralService
-  ) {}
-
-  ngOnInit(): void {
+  constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      IdCliente: [67],
-      PaisRegistro: ['Brasil'],
       Detalhes: this.fb.group({
-        Processo: [''],
-        DireitoAutoral: [''],
+        Processo: ['', Validators.required],
+        DireitoAutoral: ['', Validators.required],
         OrgaoRegistro: [''],
         SituacaoProcesso: ['']
       }),
@@ -118,51 +143,47 @@ export class DireitoAutoralFormComponent implements OnInit {
         DataDeposito: [''],
         DataRegistro: ['']
       }),
-      PartesProcesso: this.fb.group({
-        TitularesCadastrados: [[]],
-        InteressadosCadastrados: [[]],
-        CorrespondentesCadastrados: [[]]
-      }),
-      AgendaPrazos: [[]],
-      ProcessosVinculados: [[]],
-      HistoricoProcessos: [[]],
       DadosGerais: this.fb.group({
         PastaReferencia: [''],
-        ReferenciaCliente: [''],
-        Patrono: [''],
-        Responsavel: [''],
-        Colidencia: [false],
-        Terceiros: [false]
+        Responsavel: ['']
       })
     });
   }
 
-  salvar() {
-    const data: DireitoAutoral = this.form.value;
-    this.direitoService.create(data).subscribe(() => {
-      alert('Registro salvo com sucesso!');
-    });
+  // Getters para facilitar o acesso no template
+  get detalhes() {
+    return this.form.get('Detalhes') as FormGroup;
   }
-<form [formGroup]="form" (ngSubmit)="salvar()">
-  <h2>Cadastro de Direito Autoral</h2>
 
-  <div formGroupName="Detalhes">
-    <label>Processo: <input formControlName="Processo" /></label><br>
-    <label>Título: <input formControlName="DireitoAutoral" /></label><br>
-    <label>Órgão: <input formControlName="OrgaoRegistro" /></label><br>
-    <label>Situação: <input formControlName="SituacaoProcesso" /></label>
-  </div>
+  get datasProcesso() {
+    return this.form.get('DatasProcesso') as FormGroup;
+  }
 
-  <div formGroupName="DatasProcesso">
-    <label>Data Depósito: <input type="date" formControlName="DataDeposito" /></label><br>
-    <label>Data Registro: <input type="date" formControlName="DataRegistro" /></label>
-  </div>
+  get dadosGerais() {
+    return this.form.get('DadosGerais') as FormGroup;
+  }
 
-  <div formGroupName="DadosGerais">
-    <label>Pasta Referência: <input formControlName="PastaReferencia" /></label><br>
-    <label>Responsável: <input formControlName="Responsavel" /></label>
-  </div>
+  campoInvalido(control: AbstractControl | null): boolean {
+    return !!control && control.invalid && (control.dirty || control.touched);
+  }
 
-  <button type="submit">Salvar</button>
-</form>
+  salvar(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    this.carregando = true;
+    const dados = this.form.value;
+
+    // Aqui você poderia chamar um serviço HTTP (via service)
+    console.log('Salvando dados:', dados);
+
+    // Simula requisição
+    setTimeout(() => {
+      this.carregando = false;
+      this.mensagem = 'Cadastro salvo com sucesso!';
+      this.form.reset();
+    }, 1000);
+  }
 }
