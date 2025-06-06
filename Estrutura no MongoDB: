@@ -1,3 +1,4 @@
+Estrutura no MongoDB:
 
 {
   "_id": "ObjectId",
@@ -20,3 +21,4 @@
   ],
   "dataCadastro": "2025-05-23T10:00:00Z"
 }
+sudo systemctl start mongod
